@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,17 +22,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-qreek+r%pyoyt8!ni5zos5+-m5k2xdj-lc3a4&z2fr5v7r#(97'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(',')
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,6 +43,11 @@ INSTALLED_APPS = [
     'userauth',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
+    'cloudinary_storage',
+    'cloudinary',
+    'updates',
+    'events',
+    'drf_yasg',
 ]
 
 REST_FRAMEWORK = {
@@ -172,4 +179,85 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
-AUTH_USER_MODEL = 'userauth.CustomUser'
+AUTH_USER_MODEL = 'userauth.User'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': config('CLOUDINARY_API_KEY'),
+    'API_SECRET': config('CLOUDINARY_API_SECRET')
+}
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+CLOUDINARY_MEDIA_PREFIX_URL = 'stuble/'
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": True,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": False,
+    "accent": "accent-olive",
+    "navbar": "navbar-white navbar-light",
+    "no_navbar_border": False,
+    "navbar_fixed": True,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": False,
+    "sidebar": "sidebar-dark-primary",
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": False,
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme": "default",
+    "default_theme_mode": None,
+    "button_classes": {
+        "primary": "btn-outline-primary",
+        "secondary": "btn-outline-secondary",
+        "info": "btn-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-success"
+    },
+    "actions_sticky_top": False
+}
+
+JAZZMIN_SETTINGS = {
+    "site_title": "LSC",
+    "site_header": "LSC Admin",
+    "site_brand": "LSC",
+    "copyright": "LSC",
+
+    "show_ui_builder": True,
+
+    # Top menu apps
+    "topmenu_links": [
+        {"app": "userauth"},
+        {"app": "events"},
+        {"app": "updates"},
+    ],
+
+    # Sidebar icons
+    "icons": {
+        # =========================
+        # ADMIN / DJANGO CORE
+        # =========================
+        "admin": "fas fa-shield-alt",
+        "admin.LogEntry": "fas fa-clipboard-list",
+
+        "auth": "fas fa-users-cog",
+        "auth.Permission": "fas fa-key",
+        "auth.Group": "fas fa-users",
+        
+
+        # User model
+        "userauth.User": "fas fa-user-circle",
+        
+    },
+
+    # Defaults
+    "default_icon_parents": "fas fa-folder",
+    "default_icon_children": "fas fa-circle",
+}
+
+SWAGGER_DOCS_BASE_URL = config("SWAGGER_DOCS_BASE_URL")

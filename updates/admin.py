@@ -1,3 +1,13 @@
 from django.contrib import admin
+from .models import Update
 
-# Register your models here.
+class UpdateAdmin(admin.ModelAdmin):
+
+    list_display = [
+        'title', 'type', 'happening_when'
+    ]
+
+    search_fields = ['title']
+    list_filter = ['happening_when']
+
+admin.site.register(Update, UpdateAdmin)
