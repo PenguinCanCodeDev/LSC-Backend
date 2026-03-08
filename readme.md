@@ -1,4 +1,4 @@
-# Delve Backend
+# LSC Backend
 
 ## Requirements
 - Python 3.x
