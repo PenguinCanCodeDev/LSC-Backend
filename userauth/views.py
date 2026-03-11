@@ -55,8 +55,8 @@ def home(request):
     Authorization: Bearer <access_token>
     ```
 
-    Returns basic user information such as email, campus, department,
-    matriculation number, and academic session.
+    Returns basic user information such as email, campus, department and
+    matriculation number.
     """,
     responses={
         200: openapi.Response(
@@ -68,8 +68,7 @@ def home(request):
                     "campus": "Main Campus",
                     "faculty": "Engineering",
                     "department": "Computer Science",
-                    "matriculation_number": "CSC2024001",
-                    "session": "24/25"
+                    "matriculation_number": "CSC2024001"
                 }
             }
         ),
@@ -105,7 +104,6 @@ def get_user_info(request):
     - Faculty
     - Department
     - Matriculation number (must be unique)
-    - Academic session
 
     **Notes for Frontend:**
 
@@ -126,7 +124,6 @@ def get_user_info(request):
             "faculty",
             "department",
             "matriculation_number",
-            "session",
             "first_name",
             "last_name"
         ],
@@ -165,10 +162,6 @@ def get_user_info(request):
                 type=openapi.TYPE_STRING,
                 description="Unique matriculation number"
             ),
-            "session": openapi.Schema(
-                type=openapi.TYPE_STRING,
-                description="Academic session (e.g., 24/25)"
-            ),
         },
         example={
             "email": "student@university.edu",
@@ -178,8 +171,7 @@ def get_user_info(request):
             "campus": "Main Campus",
             "faculty": "Engineering",
             "department": "Computer Science",
-            "matriculation_number": "CSC2024001",
-            "session": "24/25"
+            "matriculation_number": "CSC2024001"
         }
     ),
     responses={
@@ -195,8 +187,7 @@ def get_user_info(request):
                         "campus": "Main Campus",
                         "faculty": "Engineering",
                         "department": "Computer Science",
-                        "matriculation_number": "CSC2024001",
-                        "session": "24/25"
+                        "matriculation_number": "CSC2024001"
                     },
                     "tokens": {
                         "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -225,7 +216,6 @@ def register_user(request):
     faculty = request.data.get('faculty')
     department = request.data.get('department')
     matriculation_number = request.data.get('matriculation_number')
-    session = request.data.get('session')
     first_name = request.data.get('first_name')
     last_name = request.data.get('last_name')
     
@@ -233,7 +223,7 @@ def register_user(request):
     
     if not all([
         email, password, campus, faculty,
-        department, matriculation_number, session,
+        department, matriculation_number,
         first_name, last_name
     ]):
         return Response({
@@ -279,7 +269,6 @@ def register_user(request):
         faculty = faculty,
         department = department,
         matriculation_number = matriculation_number,
-        session = session,
         password = password
     )
     serializer = UserSerializer(new_user)
@@ -352,8 +341,7 @@ def register_user(request):
                             "campus": "Main Campus",
                             "faculty": "Engineering",
                             "department": "Computer Science",
-                            "matriculation_number": "CSC2024001",
-                            "session": "24/25"
+                            "matriculation_number": "CSC2024001"
                         },
                         "tokens": {
                             "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",

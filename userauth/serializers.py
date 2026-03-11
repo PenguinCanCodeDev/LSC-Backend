@@ -8,5 +8,5 @@ class UserSerializer(ModelSerializer):
         fields = [
             'id', 'email', 'password',
             'campus', 'faculty', 'department',
-            'matriculation_number', 'session',
+            'matriculation_number',
         ]
