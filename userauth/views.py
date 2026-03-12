@@ -68,7 +68,8 @@ def home(request):
                     "campus": "Main Campus",
                     "faculty": "Engineering",
                     "department": "Computer Science",
-                    "matriculation_number": "CSC2024001"
+                    "matriculation_number": "CSC2024001",
+                    "user_type": "lsc"
                 }
             }
         ),
