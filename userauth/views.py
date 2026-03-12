@@ -7,7 +7,7 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework import status
 
 
-from .models import User
+from .models import User, UserTypes
 from .serializers import UserSerializer
 from .utils import is_valid_email
 from drf_yasg.utils import swagger_auto_schema
@@ -598,3 +598,68 @@ def logout_user(request):
             "status": False,
             "error": str(e)
         }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@swagger_auto_schema(
+    method='patch',
+    operation_summary="Set user type",
+    operation_description="Allows an authenticated user to set their user type.",
+    tags=["Users"],
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        required=['user_type'],
+        properties={
+            'user_type': openapi.Schema(
+                type=openapi.TYPE_STRING,
+                description="Type of user",
+                enum=['l300', 'lsc']
+            )
+        }
+    ),
+    responses={
+        200: openapi.Response(
+            description="User type set successfully",
+            examples={
+                "application/json": {
+                    "status": True,
+                    "message": "User type set successfully"
+                }
+            }
+        ),
+        400: openapi.Response(
+            description="Invalid input",
+            examples={
+                "application/json": {
+                    "status": False,
+                    "message": "user_type is required"
+                }
+            }
+        )
+    }
+)
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def set_user_type(request):
+
+    user = request.user
+
+    user_type = request.data.get('user_type')
+    if not user_type:
+        return Response({
+            "status": False,
+            "message": "user_type is required"
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    if not user_type in list(UserTypes.values):
+        return Response({
+            "status": False,
+            "message": "user_type can either be l300 or lsc"
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    user.user_type = user_type
+    user.save(update_fields=['user_type'])
+
+    return Response({
+        "status": True,
+        "message": "User type set successfully"
+    }, sttaus=status.HTTP_200_OK)

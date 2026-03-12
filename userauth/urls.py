@@ -2,7 +2,8 @@ from django.urls import path
 from .views import (
     home, get_user_info,
     register_user, login_user,
-    refresh_token, logout_user
+    refresh_token, logout_user,
+    set_user_type,
 )
 
 urlpatterns = [
@@ -15,4 +16,6 @@ urlpatterns = [
     path('auth/token/', login_user),
     path('auth/token/refresh/', refresh_token),
     path('auth/logout/', logout_user),
+
+    path('set-user-type/', set_user_type),
 ]

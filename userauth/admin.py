@@ -14,7 +14,7 @@ class UserAdmin(admin.ModelAdmin):
         'mmatriculation_number'
     ]
     list_filter = [
-        'faculty', 'department', 'campus',
+        'user_type', 'faculty', 'department', 'campus',
         'is_staff', 'is_superuser', 'date_joined',
         'last_login'
     ]

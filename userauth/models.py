@@ -3,6 +3,10 @@ from django.db import models
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils import timezone
 
+class UserTypes(models.TextChoices):
+    L300 = 'l300', 'L300'
+    LSC = 'lsc', 'LSC'
+
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -55,7 +59,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         unique=True,
         help_text="The student's matriculation number"
     )
-
+    user_type = models.CharField(
+        max_length=4,
+        choices=UserTypes.choices,
+        help_text="Indicates the type of user this student is",
+        default=UserTypes.L300
+    )
     is_staff =  models.BooleanField(
         default=False,
         help_text='Indicates if this user is a staff of LSC'
