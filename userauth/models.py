@@ -55,7 +55,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         unique=True,
         help_text="The student's matriculation number"
     )
-    session = models.CharField(max_length=5, blank=False)
 
     is_staff =  models.BooleanField(
         default=False,
