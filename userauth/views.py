@@ -50,10 +50,9 @@ def home(request):
     **Authentication Required:** Yes (JWT Access Token)
 
     The access token should be included in the request header:
-
-    ```
+```
     Authorization: Bearer <access_token>
-    ```
+```
 
     Returns basic user information such as email, campus, department and
     matriculation number.
@@ -105,6 +104,7 @@ def get_user_info(request):
     - Faculty
     - Department
     - Matriculation number (must be unique)
+    - User type (l300 or lsc)
 
     **Notes for Frontend:**
 
@@ -126,7 +126,8 @@ def get_user_info(request):
             "department",
             "matriculation_number",
             "first_name",
-            "last_name"
+            "last_name",
+            "user_type"
         ],
         properties={
             "email": openapi.Schema(
@@ -163,6 +164,11 @@ def get_user_info(request):
                 type=openapi.TYPE_STRING,
                 description="Unique matriculation number"
             ),
+            "user_type": openapi.Schema(
+                type=openapi.TYPE_STRING,
+                description="User type (l300 or lsc)",
+                enum=["l300", "lsc"]
+            ),
         },
         example={
             "email": "student@university.edu",
@@ -172,7 +178,8 @@ def get_user_info(request):
             "campus": "Main Campus",
             "faculty": "Engineering",
             "department": "Computer Science",
-            "matriculation_number": "CSC2024001"
+            "matriculation_number": "CSC2024001",
+            "user_type": "l300"
         }
     ),
     responses={
@@ -188,7 +195,8 @@ def get_user_info(request):
                         "campus": "Main Campus",
                         "faculty": "Engineering",
                         "department": "Computer Science",
-                        "matriculation_number": "CSC2024001"
+                        "matriculation_number": "CSC2024001",
+                        "user_type": "l300"
                     },
                     "tokens": {
                         "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -219,6 +227,7 @@ def register_user(request):
     matriculation_number = request.data.get('matriculation_number')
     first_name = request.data.get('first_name')
     last_name = request.data.get('last_name')
+    user_type = request.data.get('user_type', 'l300')  # ← ADDED THIS LINE
     
     # validate data
     
@@ -250,16 +259,17 @@ def register_user(request):
             'message': 'Email already in use'
         }, status=status.HTTP_400_BAD_REQUEST)
     
-    if User.objects.filter(matriculation_number=matriculation_number).exists():
-        return Response({
-            'status': False,
-            'message': 'Matric number already in use'
-        }, status=status.HTTP_400_BAD_REQUEST)
-    
     if len(password) < 5:
         return Response({
             'status': False,
             'message': 'Password must be at least 5 characters'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Validate user_type  ← ADDED THIS VALIDATION
+    if user_type not in ['l300', 'lsc']:
+        return Response({
+            'status': False,
+            'message': 'user_type must be either l300 or lsc'
         }, status=status.HTTP_400_BAD_REQUEST)
     
     new_user = User.objects.create_user(
@@ -270,7 +280,8 @@ def register_user(request):
         faculty = faculty,
         department = department,
         matriculation_number = matriculation_number,
-        password = password
+        password = password,
+        user_type = user_type  # ← ADDED THIS LINE
     )
     serializer = UserSerializer(new_user)
 
@@ -663,4 +674,4 @@ def set_user_type(request):
     return Response({
         "status": True,
         "message": "User type set successfully"
-    }, sttaus=status.HTTP_200_OK)
+    }, status=status.HTTP_200_OK)
