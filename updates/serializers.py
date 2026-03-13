@@ -4,4 +4,4 @@ from .models import Update
 class UpdateSerializer(ModelSerializer):
     class Meta:
         model = Update
-        fields = ['title', 'type', 'happening_when']
+        fields = ['title', 'type', 'happening_when', 'link']

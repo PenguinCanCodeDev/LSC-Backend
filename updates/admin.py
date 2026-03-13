@@ -4,7 +4,7 @@ from .models import Update
 class UpdateAdmin(admin.ModelAdmin):
 
     list_display = [
-        'title', 'type', 'happening_when'
+        'title', 'type', 'happening_when', 'link'
     ]
 
     search_fields = ['title']

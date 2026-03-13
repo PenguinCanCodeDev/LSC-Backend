@@ -22,5 +22,12 @@ class Update(models.Model):
 
     happening_when = models.DateTimeField(help_text='The date and time this ')
 
+    link = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text='An optional link associated with this update (e.g. meeting link, resource URL)'
+    )
+
     def __str__(self):
         return self.title
