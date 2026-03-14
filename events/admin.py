@@ -5,7 +5,7 @@ class EventAdmin(admin.ModelAdmin):
 
     list_display = [
         'title', 'happening_when', 'event_type',
-        'tag', 'level', 'created_when'
+        'tag', 'level', 'link', 'created_when'
     ]
 
     search_fields = [

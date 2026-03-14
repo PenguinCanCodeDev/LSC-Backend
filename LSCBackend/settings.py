@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
+import cloudinary
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -47,7 +48,8 @@ INSTALLED_APPS = [
     'cloudinary',
     'updates',
     'events',
-    'drf_yasg','corsheaders',
+    'drf_yasg',
+    'corsheaders',
 ]
 
 REST_FRAMEWORK = {
@@ -57,7 +59,8 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware','django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -65,7 +68,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 CORS_ALLOW_ALL_ORIGINS = True
+
 ROOT_URLCONF = 'LSCBackend.urls'
 
 TEMPLATES = [
@@ -181,83 +186,23 @@ SIMPLE_JWT = {
 
 AUTH_USER_MODEL = 'userauth.User'
 
+# Cloudinary storage config (used by django-cloudinary-storage)
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
     'API_KEY': config('CLOUDINARY_API_KEY'),
-    'API_SECRET': config('CLOUDINARY_API_SECRET')
+    'API_SECRET': config('CLOUDINARY_API_SECRET'),
 }
+
+# This explicitly configures the cloudinary SDK itself —
+# without this, the SDK doesn't pick up the credentials and throws "Must supply api_key"
+cloudinary.config(
+    cloud_name=config('CLOUDINARY_CLOUD_NAME'),
+    api_key=config('CLOUDINARY_API_KEY'),
+    api_secret=config('CLOUDINARY_API_SECRET'),
+    secure=True,
+)
+
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 CLOUDINARY_MEDIA_PREFIX_URL = 'stuble/'
-
-JAZZMIN_UI_TWEAKS = {
-    "navbar_small_text": True,
-    "footer_small_text": False,
-    "body_small_text": False,
-    "brand_small_text": False,
-    "brand_colour": False,
-    "accent": "accent-olive",
-    "navbar": "navbar-white navbar-light",
-    "no_navbar_border": False,
-    "navbar_fixed": True,
-    "layout_boxed": False,
-    "footer_fixed": False,
-    "sidebar_fixed": False,
-    "sidebar": "sidebar-dark-primary",
-    "sidebar_nav_small_text": False,
-    "sidebar_disable_expand": False,
-    "sidebar_nav_child_indent": False,
-    "sidebar_nav_compact_style": False,
-    "sidebar_nav_legacy_style": False,
-    "sidebar_nav_flat_style": False,
-    "theme": "default",
-    "default_theme_mode": None,
-    "button_classes": {
-        "primary": "btn-outline-primary",
-        "secondary": "btn-outline-secondary",
-        "info": "btn-info",
-        "warning": "btn-warning",
-        "danger": "btn-danger",
-        "success": "btn-success"
-    },
-    "actions_sticky_top": False
-}
-
-JAZZMIN_SETTINGS = {
-    "site_title": "LSC",
-    "site_header": "LSC Admin",
-    "site_brand": "LSC",
-    "copyright": "LSC",
-
-    "show_ui_builder": True,
-
-    # Top menu apps
-    "topmenu_links": [
-        {"app": "userauth"},
-        {"app": "events"},
-        {"app": "updates"},
-    ],
-
-    # Sidebar icons
-    "icons": {
-        # =========================
-        # ADMIN / DJANGO CORE
-        # =========================
-        "admin": "fas fa-shield-alt",
-        "admin.LogEntry": "fas fa-clipboard-list",
-
-        "auth": "fas fa-users-cog",
-        "auth.Permission": "fas fa-key",
-        "auth.Group": "fas fa-users",
-        
-
-        # User model
-        "userauth.User": "fas fa-user-circle",
-        
-    },
-
-    # Defaults
-    "default_icon_parents": "fas fa-folder",
-    "default_icon_children": "fas fa-circle",
-}
 
 SWAGGER_DOCS_BASE_URL = config("SWAGGER_DOCS_BASE_URL")

@@ -29,6 +29,13 @@ class Event(models.Model):
         blank=True, 
         null=True
     )
+
+    link = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text='An optional link associated with this event (e.g. meeting link, resource URL)'
+    )
     
     event_type = models.CharField(
         max_length=15, 
@@ -53,4 +60,3 @@ class Event(models.Model):
 
     def __str__(self):
         return self.title
-
