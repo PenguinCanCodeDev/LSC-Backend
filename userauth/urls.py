@@ -3,7 +3,7 @@ from .views import (
     home, get_user_info,
     register_user, login_user,
     refresh_token, logout_user,
-    set_user_type,
+    set_user_type, edit_profile,
 )
 
 urlpatterns = [
@@ -11,11 +11,12 @@ urlpatterns = [
 
     path('my-user-info/', get_user_info),
 
-    # auth 
+    # auth
     path('auth/register/', register_user),
     path('auth/token/', login_user),
     path('auth/token/refresh/', refresh_token),
     path('auth/logout/', logout_user),
 
     path('set-user-type/', set_user_type),
+    path('edit-profile/', edit_profile),
 ]

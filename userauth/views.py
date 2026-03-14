@@ -227,7 +227,7 @@ def register_user(request):
     matriculation_number = request.data.get('matriculation_number')
     first_name = request.data.get('first_name')
     last_name = request.data.get('last_name')
-    user_type = request.data.get('user_type', 'l300')  # ← ADDED THIS LINE
+    user_type = request.data.get('user_type', 'l300')
     
     # validate data
     
@@ -265,7 +265,6 @@ def register_user(request):
             'message': 'Password must be at least 5 characters'
         }, status=status.HTTP_400_BAD_REQUEST)
     
-    # Validate user_type  ← ADDED THIS VALIDATION
     if user_type not in ['l300', 'lsc']:
         return Response({
             'status': False,
@@ -281,7 +280,7 @@ def register_user(request):
         department = department,
         matriculation_number = matriculation_number,
         password = password,
-        user_type = user_type  # ← ADDED THIS LINE
+        user_type = user_type
     )
     serializer = UserSerializer(new_user)
 
@@ -674,4 +673,153 @@ def set_user_type(request):
     return Response({
         "status": True,
         "message": "User type set successfully"
+    }, status=status.HTTP_200_OK)
+
+
+@swagger_auto_schema(
+    method='patch',
+    operation_summary="Edit user profile",
+    operation_description="""
+    Allows an authenticated user to update their profile information.
+
+    **All fields are optional** — only send the fields you want to update.
+
+    **Editable Fields:**
+    - **first_name** → Student's first name
+    - **last_name** → Student's last name
+    - **department** → Student's department
+    - **faculty** → Student's faculty
+    - **campus** → Student's campus
+    - **level** → Student's level
+    - **matriculation_number** → Must be unique if changed
+    - **user_type** → l300 or lsc
+
+    **Authentication Required:** Yes (JWT Access Token)
+    """,
+    tags=["Users"],
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            "first_name": openapi.Schema(
+                type=openapi.TYPE_STRING,
+                description="Student's first name"
+            ),
+            "last_name": openapi.Schema(
+                type=openapi.TYPE_STRING,
+                description="Student's last name"
+            ),
+            "department": openapi.Schema(
+                type=openapi.TYPE_STRING,
+                description="Student's department"
+            ),
+            "faculty": openapi.Schema(
+                type=openapi.TYPE_STRING,
+                description="Student's faculty"
+            ),
+            "campus": openapi.Schema(
+                type=openapi.TYPE_STRING,
+                description="Student's campus"
+            ),
+            "level": openapi.Schema(
+                type=openapi.TYPE_STRING,
+                description="Student's level"
+            ),
+            "matriculation_number": openapi.Schema(
+                type=openapi.TYPE_STRING,
+                description="Student's matriculation number (must be unique)"
+            ),
+            "user_type": openapi.Schema(
+                type=openapi.TYPE_STRING,
+                enum=["l300", "lsc"],
+                description="User type"
+            ),
+        },
+        example={
+            "department": "Computer Science",
+            "faculty": "Computing",
+            "campus": "Legacy",
+            "user_type": "l300"
+        }
+    ),
+    responses={
+        200: openapi.Response(
+            description="Profile updated successfully",
+            examples={
+                "application/json": {
+                    "status": True,
+                    "message": "Profile updated successfully",
+                    "user": {
+                        "id": 1,
+                        "email": "student@university.edu",
+                        "first_name": "John",
+                        "last_name": "Doe",
+                        "campus": "Legacy",
+                        "faculty": "Computing",
+                        "department": "Computer Science",
+                        "matriculation_number": "SCN/CSC/230123",
+                        "user_type": "l300"
+                    }
+                }
+            }
+        ),
+        400: openapi.Response(
+            description="Validation error",
+            examples={
+                "application/json": {
+                    "status": False,
+                    "message": "Matric number already in use by another account"
+                }
+            }
+        ),
+        401: openapi.Response(
+            description="Authentication credentials missing or invalid"
+        ),
+    }
+)
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def edit_profile(request):
+
+    user = request.user
+
+    # Fields allowed to be updated
+    allowed_fields = [
+        'first_name', 'last_name', 'department',
+        'faculty', 'campus', 'level', 'matriculation_number', 'user_type'
+    ]
+
+    # Validate user_type if provided
+    user_type = request.data.get('user_type')
+    if user_type and user_type not in list(UserTypes.values):
+        return Response({
+            'status': False,
+            'message': 'user_type must be either l300 or lsc'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    # Validate matriculation_number uniqueness only if it is being changed
+    new_matric = request.data.get('matriculation_number')
+    if new_matric and new_matric != user.matriculation_number:
+        if User.objects.filter(matriculation_number=new_matric).exists():
+            return Response({
+                'status': False,
+                'message': 'Matric number already in use by another account'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    # Apply only the fields that were sent in the request
+    updated_fields = []
+    for field in allowed_fields:
+        value = request.data.get(field)
+        if value is not None and str(value).strip():
+            setattr(user, field, str(value).strip())
+            updated_fields.append(field)
+
+    if updated_fields:
+        user.save(update_fields=updated_fields)
+
+    serializer = UserSerializer(user)
+
+    return Response({
+        'status': True,
+        'message': 'Profile updated successfully',
+        'user': serializer.data
     }, status=status.HTTP_200_OK)
